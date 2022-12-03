@@ -14,7 +14,7 @@ void loop() {
 
   ptime = micros() - Oldmicros ;
    
-  if (ptime > 996) { // around 1008Hz
+  if (ptime > 996) { // around 1000Hz
     //Serial.println(1000000.0/ptime); 
     Oldmicros = micros();     
         
