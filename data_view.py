@@ -21,8 +21,8 @@ try:
             continue
 
 
-        data = []
-        #t =[]
+        emg = []
+        fsr =[]
         seconds = time.time()
         c = 0
         s = 0
@@ -34,8 +34,11 @@ try:
                 if ser.read() == b'\r' :
                     s += 1
                     if ser.read() == b'\n' :
-                        data_raw = ser.read(6)
-                        data.append(list(data_raw))
+                        fsr_raw = ser.read(2)
+                        emg_raw = ser.read(4)
+                        fsr.append(list(fsr_raw))
+                        emg.append(list(emg_raw))
+                        
                         #t.append(ser.in_waiting)
                         
                         
@@ -43,10 +46,12 @@ try:
 
         #print(c)
         #print(s)
-        print("資料總數:", len(data))
+        print("資料總數:", s)
             
-        m = np.mean(data,  axis = 0)
-        pdata = data - m
+        data = np.concatenate([fsr, emg], axis=1)
+        
+        m = np.mean(emg,  axis = 0)
+        pemg = emg - m
 
         
         l=1000
@@ -55,13 +60,15 @@ try:
         low = 2*65/l
         b, a = signal.butter(4, [high,low], btype='bandstop')
         
-        pdata = signal.filtfilt(b, a, pdata, axis=0)
+        pemg = signal.filtfilt(b, a, pemg, axis=0)
         
         high = 2*10/l
         low = 2*450/l
         b, a = signal.butter(4, [high,low], btype='bandpass')
         
-        pdata = signal.filtfilt(b, a, pdata, axis=0)
+        pemg = signal.filtfilt(b, a, pemg, axis=0)
+        
+        pdata = np.concatenate([fsr, pemg], axis=1)
 
     
         fig, (plt1, plt2) = plt.subplots(2, 1, figsize=(12,7))
