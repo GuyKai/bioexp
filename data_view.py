@@ -12,6 +12,33 @@ BAUD_RATES = 500000    # 設定傳輸速率
 ser = serial.Serial(COM_PORT, BAUD_RATES)
 interval = 3
 
+
+def emg_filter(data):
+    emg = data[:,2:6]
+    fsr = data[:,0:2]
+    
+    m = np.mean(emg,  axis = 0)
+    pemg = emg - m
+
+    
+    l=1000
+    
+    high = 2*55/l
+    low = 2*65/l
+    b, a = signal.butter(4, [high,low], btype='bandstop')
+    
+    pemg = signal.filtfilt(b, a, pemg, axis=0)
+    
+    high = 2*10/l
+    low = 2*450/l
+    b, a = signal.butter(4, [high,low], btype='bandpass')
+    
+    pemg = signal.filtfilt(b, a, pemg, axis=0)
+    
+    pdata = np.concatenate([fsr, pemg], axis=1)
+    
+    return pdata
+
 try:
     while True:
         number = input("gesture number :")
@@ -20,9 +47,7 @@ try:
             print("not a number")
             continue
 
-
-        emg = []
-        fsr =[]
+        data =[]
         seconds = time.time()
         c = 0
         s = 0
@@ -34,11 +59,8 @@ try:
                 if ser.read() == b'\r' :
                     s += 1
                     if ser.read() == b'\n' :
-                        fsr_raw = ser.read(2)
-                        emg_raw = ser.read(4)
-                        fsr.append(list(fsr_raw))
-                        emg.append(list(emg_raw))
-                        
+                        data_raw = ser.read(6)
+                        data.append(list(data_raw))
                         #t.append(ser.in_waiting)
                         
                         
@@ -48,29 +70,10 @@ try:
         #print(s)
         print("資料總數:", s)
             
-        data = np.concatenate([fsr, emg], axis=1)
+        data = np.array(data)
         
-        m = np.mean(emg,  axis = 0)
-        pemg = emg - m
-
-        
-        l=1000
-        
-        high = 2*55/l
-        low = 2*65/l
-        b, a = signal.butter(4, [high,low], btype='bandstop')
-        
-        pemg = signal.filtfilt(b, a, pemg, axis=0)
-        
-        high = 2*10/l
-        low = 2*450/l
-        b, a = signal.butter(4, [high,low], btype='bandpass')
-        
-        pemg = signal.filtfilt(b, a, pemg, axis=0)
-        
-        pdata = np.concatenate([fsr, pemg], axis=1)
-
-    
+        pdata = emg_filter(data)
+            
         fig, (plt1, plt2) = plt.subplots(2, 1, figsize=(12,7))
         
         plt1.plot(data)
@@ -81,5 +84,9 @@ try:
 
 
 except KeyboardInterrupt:
+    ser.close()
+    print('KeyboardInterrupt')
+    
+finally :
     ser.close()
     print('End')

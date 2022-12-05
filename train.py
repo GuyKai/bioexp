@@ -26,12 +26,35 @@ for gesture in gestures:
 '''
 
 Y_data = np.array([]) 
-X_data = np.zeros((0,1000,9))#先建立X_data的空架構，預設圖片大小1,000x9
+X_data = np.zeros((0,2000,6))#先建立X_data的空架構，預設圖片大小2,000x6
 
 #%%
 #===========================EMG濾波函數========================
+def emg_filter(data):
+    emg = data[:,2:6]
+    fsr = data[:,0:2]
+    
+    m = np.mean(emg,  axis = 0)
+    pemg = emg - m
 
-
+    
+    l=1000
+    
+    high = 2*55/l
+    low = 2*65/l
+    b, a = signal.butter(4, [high,low], btype='bandstop')
+    
+    pemg = signal.filtfilt(b, a, pemg, axis=0)
+    
+    high = 2*10/l
+    low = 2*450/l
+    b, a = signal.butter(4, [high,low], btype='bandpass')
+    
+    pemg = signal.filtfilt(b, a, pemg, axis=0)
+    
+    pdata = np.concatenate([fsr, pemg], axis=1)
+    
+    return pdata
 
 #%%
 #===========================讀取資料===========================
@@ -50,21 +73,16 @@ for gesture in gestures:
             Y_data = np.append(Y_data, gesture) #把label加入Y_data
                 
             #X_data.append
-            df1 = df.head(1000) #從這個class開始第一筆資料後面取1000
-
-
-# =============================================================================
-#                 #EMG filter
-#                 for column in df3.keys():
-#                   df3[column] = emg_filter(df3[column]) #經過emg filter處理
-#                 df4 = df3*1000 #把EMG電訊號拉到0~1之間，並且取絕對值。
-# =============================================================================
+            df1 = df.head(2000) #從這個class開始第一筆資料後面取2000
                 
             #DataFrame to numpy
-            EMG = df1.to_numpy() #DataFrame轉成Numpy array
-            EMG1 = EMG.reshape(1,1000,9) #因為要加入X_train裡面所以shape要一樣
+            df2 = df1.to_numpy() #DataFrame轉成Numpy array
             
-            X_data = np.concatenate((X_data, EMG1)) #新的資料加入(n, 1000, 9)
+            #EMG filter
+            EMG = emg_filter(df2)
+            EMG1 = EMG.reshape(1,2000,6) #因為要加入X_train裡面所以shape要一樣
+            
+            X_data = np.concatenate((X_data, EMG1)) #新的資料加入(n, 2000, 6)
 
 #%%                           
 #===========================分割資料===========================                        
@@ -75,12 +93,12 @@ print(Y_data[:20])
 
 #%% 
 #資料型態調整成可放入CNN架構型態
-X_data = X_data.reshape(-1, 1000, 9, 1) #是說CNN有ＲＧＢ值
+X_data = X_data.reshape(-1, 2000, 6, 1) #是說CNN有ＲＧＢ值
 #Y_data = Y_data.astype(int) - 1 #沒有0的資料Onehot會補0，造成資料對不上，所以減1
 #print(Y_data[:20])
 
 #分割資料
-X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=0.2, random_state=369)  
+X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=0.5, random_state=369)  
 print(X_train.shape, X_test.shape, Y_train.shape, Y_test.shape)
 
 #Onehot
@@ -93,22 +111,22 @@ CNN = keras.Sequential(name='CNN')
 
 #抓取特徵
 #用Convolution 2D的就可 參數(filters, kernal_size)
-CNN.add(layers.Conv2D(32, (40,1), strides = (10,1), activation='relu', input_shape=(1000,9,1))) 
+CNN.add(layers.Conv2D(16, (40,1), strides = (20,1), activation='relu', input_shape=(2000,6,1))) 
 #Pooling 
-CNN.add(layers.MaxPooling2D((10,1))) 
+CNN.add(layers.MaxPooling2D((20,1))) 
 #第二次Convolution 就不用再input 
-CNN.add(layers.Conv2D(16, (1,2),strides= (1,2), activation='relu'))
+CNN.add(layers.Conv2D(32, (1,2),strides= (1,2), activation='relu'))
 #第二次Max
 CNN.add(layers.MaxPooling2D((2,1))) 
 
 #壓平 4x4x32 = 512
 CNN.add(layers.Flatten())
-#隱藏層 Dense 神經元數量 512>10097 因為最後是9類
+#隱藏層 Dense 神經元數量 512>100 因為最後是9類
 CNN.add(layers.Dense(100,activation='relu'))
 #隨機捨棄神經元，避免overfitting
 CNN.add(Dropout(0.7))
 #輸出層 分類用softmax
-CNN.add(layers.Dense(9,activation='softmax'))
+CNN.add(layers.Dense(10,activation='softmax'))
 
 #做連結圖
 keras.utils.plot_model(CNN, show_shapes=True)
@@ -161,3 +179,7 @@ print(Y_test[:20])
 
 pd.crosstab(Y_test,classes_x,
             rownames=['label'],colnames=['predict'])
+
+#%%
+#===========================儲存模型=========================== 
+CNN.save('my_model.h5')
