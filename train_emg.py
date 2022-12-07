@@ -34,7 +34,7 @@ else :
     size = 6
 
 Y_data = np.array([]) 
-X_data = np.zeros((0,2000,size))#先建立X_data的空架構，預設圖片大小2,000x6
+X_data = np.zeros((0,1000,size))#先建立X_data的空架構，預設圖片大小2,000x6
 
 #%%
 #===========================EMG濾波函數========================
@@ -81,16 +81,16 @@ for gesture in gestures:
             Y_data = np.append(Y_data, gesture) #把label加入Y_data
                 
             #X_data.append
-            df1 = df.head(2000) #從這個class開始第一筆資料後面取2000
+            df1 = df.iloc[250:1250] #從這個class開始第一筆資料後面取1000
                 
             #DataFrame to numpy
             df2 = df1.to_numpy() #DataFrame轉成Numpy array
             
             #EMG filter
             EMG = emg_filter(df2)
-            EMG1 = EMG[:,6-size:6].reshape(1,2000,size) #因為要加入X_train裡面所以shape要一樣
+            EMG1 = EMG[:,6-size:6].reshape(1,1000,size) #因為要加入X_train裡面所以shape要一樣
             
-            X_data = np.concatenate((X_data, EMG1)) #新的資料加入(n, 2000, 6)
+            X_data = np.concatenate((X_data, EMG1)) #新的資料加入(n, 1000, 6)
 
 #%%                           
 #===========================分割資料===========================                        
@@ -101,7 +101,7 @@ print(Y_data[:20])
 
 #%% 
 #資料型態調整成可放入CNN架構型態
-X_data = X_data.reshape(-1, 2000, size, 1) #是說CNN有ＲＧＢ值
+X_data = X_data.reshape(-1, 1000, size, 1) #是說CNN有ＲＧＢ值
 #Y_data = Y_data.astype(int) - 1 #沒有0的資料Onehot會補0，造成資料對不上，所以減1
 #print(Y_data[:20])
 
@@ -119,7 +119,7 @@ CNN = keras.Sequential(name='CNN')
 
 #抓取特徵
 #用Convolution 2D的就可 參數(filters, kernal_size)
-CNN.add(layers.Conv2D(16, (40,1), strides = (20,1), activation='relu', input_shape=(2000,size,1))) 
+CNN.add(layers.Conv2D(16, (20,1), strides = (10,1), activation='relu', input_shape=(1000,size,1))) 
 #Pooling 
 CNN.add(layers.MaxPooling2D((20,1))) 
 #第二次Convolution 就不用再input 
@@ -132,9 +132,9 @@ CNN.add(layers.Flatten())
 #隱藏層 Dense 神經元數量 512>100 因為最後是9類
 CNN.add(layers.Dense(100,activation='relu'))
 #隨機捨棄神經元，避免overfitting
-CNN.add(Dropout(0.8))
+CNN.add(Dropout(0.7))
 #輸出層 分類用softmax
-CNN.add(layers.Dense(10,activation='softmax'))
+CNN.add(layers.Dense(12,activation='softmax'))
 
 #做連結圖
 keras.utils.plot_model(CNN, show_shapes=True)
@@ -149,7 +149,7 @@ CNN.compile(optimizer='Adam',
 train_history=CNN.fit(x=X_train, 
                       y=Y_train_onehot,
                       validation_split=0.1, 
-                      epochs=100, 
+                      epochs=70, 
                       batch_size=10, 
                       verbose=2)
 

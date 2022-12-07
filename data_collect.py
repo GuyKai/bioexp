@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 COM_PORT = 'COM7'    # 指定通訊埠名稱
 BAUD_RATES = 500000    # 設定傳輸速率
 ser = serial.Serial(COM_PORT, BAUD_RATES)
-interval = 3
+interval = 2
 
 gestures = {0:"rest",
             1:"剪刀",
@@ -20,8 +20,10 @@ gestures = {0:"rest",
             5:"手腕:下",
             6:"手腕:內",
             7:"手腕:外",
-            8:"OK",
-            9:"大拇指"}
+            8:"大拇指",
+            9:"雙點",
+            10:"放大",
+            11:"縮小"}
 
 try:
     while True:

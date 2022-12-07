@@ -17,8 +17,10 @@ gestures = {0:"rest",
             5:"手腕:下",
             6:"手腕:內",
             7:"手腕:外",
-            8:"OK",
-            9:"大拇指"}
+            8:"大拇指",
+            9:"雙點",
+            10:"放大",
+            11:"縮小"}
 
 
 def emg_filter(data):
@@ -58,7 +60,7 @@ while True:
         continue
     
     fig = plt.figure()
-    plt.plot(np.zeros((6,2000)))
+    plt.plot(np.zeros((6,1900)))
     fig.set_size_inches(w=19,h=7)
     plt.show()
     
@@ -74,7 +76,7 @@ while True:
             df = pd.read_csv( path_csv)#讀取csv檔
 
             #X_data.append
-            df1 = df.head(2000) #從這個class開始第一筆資料後面取2000
+            df1 = df.head(1900) #從這個class開始第一筆資料後面取1900
                 
             #DataFrame to numpy
             df2 = df1.to_numpy() #DataFrame轉成Numpy array

@@ -14,7 +14,7 @@ interval = 3
 
 
 def emg_filter(data):
-9    emg = data[:,2:6]
+    emg = data[:,2:6]
     fsr = data[:,0:2]
     
     m = np.mean(emg,  axis = 0)
