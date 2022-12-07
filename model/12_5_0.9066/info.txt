@@ -1,0 +1,3 @@
+data date: 12/4
+subjects : 何(300)
+type: fsr+emg
