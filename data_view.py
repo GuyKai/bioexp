@@ -18,9 +18,7 @@ gestures = {0:"rest",
             6:"手腕:內",
             7:"手腕:外",
             8:"大拇指",
-            9:"雙點",
-            10:"放大",
-            11:"縮小"}
+            9:"雙點"}
 
 
 def emg_filter(data):
@@ -49,50 +47,55 @@ def emg_filter(data):
     
     return pdata
 
-while True:
-
-    print(gestures)
-
-    gesture=input("手勢編號 :") 
+try:
+    while True:
     
-    if (gesture.isdigit() == False):
-        print("not a number")
-        continue
+        print(gestures)
     
-    fig = plt.figure()
-    plt.plot(np.zeros((6,1900)))
-    fig.set_size_inches(w=19,h=7)
-    plt.show()
-    
-    path_dir = os.path.join(path, gesture) # 路徑 + 手勢編號
-    
-    
-    if os.path.isdir(path_dir): # 如果這個檔案是資料夾
-        fds=os.listdir(path_dir) # 手勢編號下的所有檔案
+        gesture=input("手勢編號 :") 
         
-        for j in range(len(fds)):  # 相同手勢編號下的每個檔案
-            csv = fds[j] # 獲得csv檔名
-            path_csv = os.path.join(path_dir, csv) #csv檔路徑
-            df = pd.read_csv( path_csv)#讀取csv檔
-
-            #X_data.append
-            df1 = df.head(1900) #從這個class開始第一筆資料後面取1900
-                
-            #DataFrame to numpy
-            df2 = df1.to_numpy() #DataFrame轉成Numpy array
+        if (gesture.isdigit() == False):
+            print("not a number")
+            continue
+        
+        fig = plt.figure()
+        plt.plot(np.zeros((6,1900)))
+        fig.set_size_inches(w=19,h=7)
+        plt.show()
+        
+        path_dir = os.path.join(path, gesture) # 路徑 + 手勢編號
+        
+        
+        if os.path.isdir(path_dir): # 如果這個檔案是資料夾
+            fds=os.listdir(path_dir) # 手勢編號下的所有檔案
             
-            #EMG filter
-            EMG = emg_filter(df2)
-
-            fig = plt.figure()
-            plt.plot(EMG)
-            fig.set_size_inches(w=19,h=7)
-            plt.show()
-            
-            redo = input("next?[y]y/n")
-            
-            if (redo == "n"):
-                break
-
+            for j in range(len(fds)):  # 相同手勢編號下的每個檔案
+                csv = fds[j] # 獲得csv檔名
+                path_csv = os.path.join(path_dir, csv) #csv檔路徑
+                df = pd.read_csv( path_csv)#讀取csv檔
     
+                #X_data.append
+                df1 = df.head(1900) #從這個class開始第一筆資料後面取1900
+                    
+                #DataFrame to numpy
+                df2 = df1.to_numpy() #DataFrame轉成Numpy array
+                
+                #EMG filter
+                EMG = emg_filter(df2)
+    
+                fig = plt.figure()
+                plt.plot(EMG)
+                fig.set_size_inches(w=19,h=7)
+                plt.show()
+                
+                redo = input("next?[y]y/n")
+                
+                if (redo == "n"):
+                    break
+
+except KeyboardInterrupt:
+    print('KeyboardInterrupt')
+    
+finally :
+    print('End')
 

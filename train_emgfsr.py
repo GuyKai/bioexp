@@ -135,7 +135,7 @@ CNN.add(layers.Dense(100,activation='relu'))
 #隨機捨棄神經元，避免overfitting
 CNN.add(Dropout(0.7))
 #輸出層 分類用softmax
-CNN.add(layers.Dense(12,activation='softmax'))
+CNN.add(layers.Dense(10,activation='softmax'))
 
 #做連結圖
 keras.utils.plot_model(CNN, show_shapes=True)
