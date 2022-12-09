@@ -43,9 +43,11 @@ try:
     while True:
         number = input("gesture number :")
 
-        if (number.isdigit() == False):
-            print("not a number")
-            continue
+# =============================================================================
+#         if (number.isdigit() == False):
+#             print("not a number")
+#             continue
+# =============================================================================
 
         data =[]
         seconds = time.time()

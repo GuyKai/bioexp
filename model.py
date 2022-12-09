@@ -112,8 +112,6 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
 #             second = time.time()
 # =============================================================================
             
-            
-            
         
     ser.close()
     print('Model End')
