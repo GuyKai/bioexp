@@ -50,7 +50,7 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
     s = 0
     temp = []
     update = False
-    window = 250
+    window = 200
     
     
     mode = 0 #0 for emg + fsr ,1 for emg 
@@ -101,7 +101,7 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
             
             LIST[:-1] = LIST[1:]
             LIST[-1] = gesture[0]
-            print(gestures[gesture[0]])
+            #print(gestures[gesture[0]])
             
             update = False
             s = 0
@@ -111,6 +111,8 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
 #             print(time.time()-second)
 #             second = time.time()
 # =============================================================================
+            
+            
             
         
     ser.close()
@@ -158,5 +160,4 @@ if __name__ == "__main__":
         print ('END')
 
         
-
 
