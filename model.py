@@ -101,7 +101,7 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
             
             LIST[:-1] = LIST[1:]
             LIST[-1] = gesture[0]
-            print(gestures[gesture[0]])
+            #print(gestures[gesture[0]])
             
             update = False
             s = 0
