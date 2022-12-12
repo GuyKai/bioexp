@@ -225,16 +225,16 @@ def mode1(LIST):
         all_sprites.draw(screen)                             # 全部畫出來
         # 正式渲染
         pg.display.update()
-        clock.tick(6)
+        clock.tick(10)
 
 def mode2(LIST):
     from PIL import Image
-    from pykeyboard import PyKeyboard
+    # from pykeyboard import PyKeyboard
     import keyboard
     import sys
     import subprocess
     global run, screen, WINDOW_SIZE, pivot, Start_loc, all_sprites, mode
-    k = PyKeyboard()
+    # k = PyKeyboard()
 
     # image = Image.open('002.jpg')
     # image.show()
@@ -263,14 +263,20 @@ def mode2(LIST):
         if zoom == 1:
             if gesture == 3:          # stone + paper   
                 print("Zoom in")
-                k.press_keys([k.control_key, k.keypad_keys["Add"]])
-                k.press_keys([k.control_key, k.keypad_keys["Add"]]) 
+                keyboard.press_and_release("ctrl+add")
+                keyboard.press_and_release("ctrl+add")
+                keyboard.press_and_release("ctrl+add")
+                # k.press_keys([k.control_key, k.keypad_keys["Add"]])
+                # k.press_keys([k.control_key, k.keypad_keys["Add"]]) 
                 zoom = 0
         elif zoom == 2:               # paper + stone
             if gesture == 2:            
                 print("Zoom out")
-                k.press_keys([k.control_key, k.keypad_keys["Subtract"]])
-                k.press_keys([k.control_key, k.keypad_keys["Subtract"]])
+                keyboard.press_and_release("ctrl+subtract")
+                keyboard.press_and_release("ctrl+subtract")
+                keyboard.press_and_release("ctrl+subtract")
+                # k.press_keys([k.control_key, k.keypad_keys["Subtract"]])
+                # k.press_keys([k.control_key, k.keypad_keys["Subtract"]])
                 zoom = 0
         else:
             if gesture == 2:          # stone
@@ -284,14 +290,20 @@ def mode2(LIST):
             return
         if keyboard.read_key() == "p":
             print("You pressed p")
-            k.press_keys([k.control_key, k.keypad_keys["Add"]])
-            k.press_keys([k.control_key, k.keypad_keys["Add"]])     
+            keyboard.press_and_release("ctrl+add")
+            keyboard.press_and_release("ctrl+add")
+            keyboard.press_and_release("ctrl+add")
+            # k.press_keys([k.control_key, k.keypad_keys["Add"]])
+            # k.press_keys([k.control_key, k.keypad_keys["Add"]])     
             # image.close()
             # break
         if keyboard.read_key() == "o":
             print("You pressed o")
-            k.press_keys([k.control_key, k.keypad_keys["Subtract"]])
-            k.press_keys([k.control_key, k.keypad_keys["Subtract"]])  
+            keyboard.press_and_release("ctrl+subtract")
+            keyboard.press_and_release("ctrl+subtract")
+            keyboard.press_and_release("ctrl+subtract")
+            # k.press_keys([k.control_key, k.keypad_keys["Subtract"]])
+            # k.press_keys([k.control_key, k.keypad_keys["Subtract"]])  
         if keyboard.read_key() == "q":
             print("You pressed q")
             pro.kill()
@@ -384,7 +396,7 @@ def mode3(LIST):
             print(num)
             opponent.change(num)
             player.change(i)
-            throw = False
+            # throw = False
 
             if (i==num):
                 print("Tie")
