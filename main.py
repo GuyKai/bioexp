@@ -73,6 +73,7 @@ def start(LIST):
     screen.blit(bg1, (0,0))
     pg.display.update()
     while run:
+        time.sleep(0.001)
         out = Counter(LIST).most_common(1)
         # print("show: ",gestures[out[0][0]])
         gesture = out[0][0]
@@ -161,7 +162,7 @@ def mode1(LIST):
     i = 0
 
     while run:
-
+        time.sleep(0.001)
         for event in pg.event.get():
             if event.type == KEYDOWN:           # 觸發關閉視窗
                 if event.key == K_ESCAPE:
@@ -219,6 +220,7 @@ def mode2(LIST):
     # subprocess.run([imageViewerFromCommandLine, 'book1.png'])
     mode = 0
     while run:
+        time.sleep(0.001)
         if keyboard.read_key() == "p":
             print("You pressed p")
             k.press_keys([k.control_key, k.keypad_keys["Add"]])
@@ -266,6 +268,7 @@ def mode3(LIST):
     #all_sprites.add()
 
     while run:
+        time.sleep(0.001)
         out = Counter(LIST).most_common(1)
         gesture = out[0][0]
         print(gesture)
@@ -383,7 +386,7 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
     s = 0
     temp = []
     update = False
-    window = 250
+    window = 200
     
     
     mode = 0 #0 for emg + fsr ,1 for emg 
@@ -393,7 +396,8 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
     else :
         size = 6
         
-    data = np.zeros((1000,size))
+    data = np.zeros((3,500,size))
+    step = np.zeros((500,size))
     
     model = keras.models.load_model('my_model.h5')
     
@@ -415,10 +419,18 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
                         
         if update == True :    
             temp = np.array(temp)
-            data = np.delete(data, slice(window), axis=0)
-            data = np.append(data, temp[:,6-size:6], axis=0)
-                        
-            pdata = emg_filter(data) 
+            step = np.delete(step, slice(window), axis=0)
+            step = np.append(step, temp[:,6-size:6], axis=0)
+            
+            pstep = emg_filter(step) #(500,6)
+            
+            pstep = np.reshape(pstep, (1,500,size)) 
+            
+            
+            data = np.delete(data, 0 , axis=0)  
+
+            data = np.append(data, pstep, axis=0) #(3,500,6)
+             
             
 # =============================================================================
 #             fig, (plt1, plt2) = plt.subplots(2, 1, figsize=(12,7))
@@ -427,14 +439,17 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
 #             plt.show()
 # =============================================================================
             
-            pdata = np.reshape(pdata, (1,1000,size)) 
+            pdata = np.reshape(data, (1,3,500,size)) 
 
             prediction = model(pdata).numpy()
             gesture = np.argmax(prediction,axis=1)
             
+            
             LIST[:-1] = LIST[1:]
             LIST[-1] = gesture[0]
-            #print(gestures[gesture[0]])
+            
+            
+            print(gestures[gesture[0]])
             
             update = False
             s = 0
@@ -481,7 +496,7 @@ if __name__ == "__main__":
 
     try:
         while run :
-            print(mode)
+            #print(mode)
             if mode == 0:
                 start(LIST)
             elif mode == 1:
@@ -490,6 +505,8 @@ if __name__ == "__main__":
                 mode2(LIST)
             elif mode == 3:
                 mode3(LIST)
+                
+            time.sleep(0.01)
 
             # show = input("show?")
             # time.sleep(2)
@@ -505,4 +522,4 @@ if __name__ == "__main__":
         RF.clear()
         model_thread.join()
         print ('END')
-    quit() 
+        #quit() 

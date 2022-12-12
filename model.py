@@ -50,7 +50,7 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
     s = 0
     temp = []
     update = False
-    window = 250
+    window = 200
     
     
     mode = 0 #0 for emg + fsr ,1 for emg 
@@ -101,7 +101,7 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
             
             LIST[:-1] = LIST[1:]
             LIST[-1] = gesture[0]
-            #print(gestures[gesture[0]])
+            print(gestures[gesture[0]])
             
             update = False
             s = 0
@@ -140,12 +140,35 @@ if __name__ == "__main__":
     RF.set()
     model_thread.setDaemon(True)
     model_thread.start()
+    
+    time.sleep(5)
+    print("Start")
+    
     try:
         while True :
-            show = input("show?")
-            time.sleep(2)
+            
             out = Counter(LIST).most_common(1)
-            print("show: ",gestures[out[0][0]])
+            
+            
+            
+            if out[0][0] == 9:
+                print("Listening...")
+                
+                time.sleep(2)
+                
+                out = Counter(LIST).most_common(1)
+                
+                print("show: ",gestures[out[0][0]])
+                time.sleep(1)
+        
+            time.sleep(0.001)
+            
+# =============================================================================
+#             show = input("show?")
+#             time.sleep(2)
+#             out = Counter(LIST).most_common(1)
+#             print("show: ",gestures[out[0][0]])
+# =============================================================================
             
     except (KeyboardInterrupt, SystemExit):
         RF.clear()
