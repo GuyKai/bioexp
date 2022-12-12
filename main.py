@@ -20,13 +20,13 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 BOOK1 = [getcwd().replace('\\', '/') + '/books/book_test-000{}.jpg'.format(i) for i in range(10)] + [getcwd().replace('\\', '/') + '/books/book_test-0010.jpg']
+BOOK2 = [getcwd().replace('\\', '/') + '/books/book_test2-000{}.jpg'.format(i) for i in range(10)] + [getcwd().replace('\\', '/') + '/books/book_test2-0010.jpg']
 HAND = [getcwd().replace('\\', '/') + '/paper.png', getcwd().replace('\\', '/') + '/rock.png', getcwd().replace('\\', '/') + '/scissor.png']
 BOOK = getcwd().replace('\\', '/') + '/book1.png'
 
 score_font = pg.font.Font(getcwd().replace('\\', '/') + "/msjhbd.ttc", 20)
 title_font = pg.font.Font(getcwd().replace('\\', '/') + "/msjhbd.ttc", 40)
-pivot = (360 , 450)                                      
-offset = Vector2((0, 75))                                
+pivot = (360 , 450)                                                                     
 btn_preview = 1
 preview_color = (124, 252, 0)
 mode = 0
@@ -59,6 +59,12 @@ class Book(pg.sprite.Sprite):
 
     def next_page(self, i):
         self.image = pg.image.load(BOOK1[i]).convert_alpha()
+        self.image = pg.transform.scale(self.image, screen.get_size())
+        self.rect = self.image.get_rect()
+        self.rect.center = self.center
+
+    def prev_page(self, i):
+        self.image = pg.image.load(BOOK2[i]).convert_alpha()
         self.image = pg.transform.scale(self.image, screen.get_size())
         self.rect = self.image.get_rect()
         self.rect.center = self.center
@@ -111,7 +117,7 @@ def start(LIST):
             btn_preview = 3 if btn_preview == 3 else btn_preview + 1
         elif gesture == 4:          # Up
             btn_preview = 1 if btn_preview == 1 else btn_preview - 1
-        elif gesture == 9:          # Double tap
+        elif gesture == 8:          # Thumbsup
             mode = btn_preview
             return
 
@@ -145,7 +151,7 @@ def start(LIST):
                 screen = pg.display.set_mode(WINDOW_SIZE, pg.RESIZABLE, 32)
 
 def mode1(LIST):  
-    global run, screen, WINDOW_SIZE, pivot, offset, Start_loc, all_sprites, mode
+    global run, screen, WINDOW_SIZE, pivot, Start_loc, all_sprites, mode
     bg2 = pg.Surface(screen.get_size())
     bg2 = bg2.convert()
     bg2.fill(WHITE)
@@ -163,6 +169,22 @@ def mode1(LIST):
 
     while run:
         time.sleep(0.001)
+        out = Counter(LIST).most_common(1)
+        gesture = out[0][0]
+        #print(gesture)
+        # print(state)
+        if state == 0:
+            if gesture == 7:            
+                print("next page")
+                state = 1
+            elif gesture == 6:          
+                print("previous page")
+                state = 2
+            elif gesture == 9:       # Double tap
+                mode = 0
+                print("Quit!")
+                return
+
         for event in pg.event.get():
             if event.type == KEYDOWN:           # 觸發關閉視窗
                 if event.key == K_ESCAPE:
@@ -173,9 +195,12 @@ def mode1(LIST):
                 WINDOW_SIZE = event.size
                 screen = pg.display.set_mode(WINDOW_SIZE, pg.RESIZABLE, 32)
             elif event.type == pg.KEYUP:
-                if event.key == pg.K_LEFT:
+                if event.key == pg.K_RIGHT:
                     print("next page")
                     state = 1
+                if event.key == pg.K_LEFT:
+                    print("prev page")
+                    state = 2
                     # Back
                 if event.key == pg.K_DOWN:
                     mode = 0
@@ -188,26 +213,27 @@ def mode1(LIST):
             else:
                 i = 0
                 state = 0
-        book1.org_image = pg.transform.scale(book1.org_image, (int(WINDOW_SIZE[0]/36), int(WINDOW_SIZE[1]/2.5)))
+        elif state == 2:
+            if i < len(BOOK2):
+                book1.prev_page(i)
+                i += 1
+            else:
+                i = 0
+                state = 0
+        
         screen.fill(WHITE)
         all_sprites.draw(screen)                             # 全部畫出來
         # 正式渲染
         pg.display.update()
         clock.tick(6)
-        # if event.type == pg.KEYUP:                            # Back
-        #     if event.key == pg.K_DOWN:
-        #         mode = 0
-        #         return
 
 def mode2(LIST):
     from PIL import Image
     from pykeyboard import PyKeyboard
-    from os import getcwd
     import keyboard
     import sys
     import subprocess
-    import psutil
-    global run, screen, WINDOW_SIZE, pivot, offset, Start_loc, all_sprites, mode
+    global run, screen, WINDOW_SIZE, pivot, Start_loc, all_sprites, mode
     k = PyKeyboard()
 
     # image = Image.open('002.jpg')
@@ -219,8 +245,43 @@ def mode2(LIST):
     pro = subprocess.Popen([imageViewerFromCommandLine, "002.jpg"])
     # subprocess.run([imageViewerFromCommandLine, 'book1.png'])
     mode = 0
+    zoom = 0
+    count = 0
     while run:
+        count += 1
+        # Reset
+        if count > 100:
+            count = 0
+            zoom = 0
+            
         time.sleep(0.001)
+
+        out = Counter(LIST).most_common(1)
+        gesture = out[0][0]
+        print(gesture)
+
+        if zoom == 1:
+            if gesture == 3:          # stone + paper   
+                print("Zoom in")
+                k.press_keys([k.control_key, k.keypad_keys["Add"]])
+                k.press_keys([k.control_key, k.keypad_keys["Add"]]) 
+                zoom = 0
+        elif zoom == 2:               # paper + stone
+            if gesture == 2:            
+                print("Zoom out")
+                k.press_keys([k.control_key, k.keypad_keys["Subtract"]])
+                k.press_keys([k.control_key, k.keypad_keys["Subtract"]])
+                zoom = 0
+        else:
+            if gesture == 2:          # stone
+                zoom = 1
+            if gesture == 3:          # paper
+                zoom = 2
+
+        if gesture == 9:              # Double tap
+            mode = 0
+            print("Quit!")
+            return
         if keyboard.read_key() == "p":
             print("You pressed p")
             k.press_keys([k.control_key, k.keypad_keys["Add"]])
@@ -246,7 +307,7 @@ def mode2(LIST):
 
 def mode3(LIST):
     # 遊戲bg
-    global run, screen, WINDOW_SIZE, pivot, offset, Start_loc, all_sprites, mode
+    global run, screen, WINDOW_SIZE, pivot, Start_loc, all_sprites, mode
     bg2 = pg.Surface(screen.get_size())
     bg2 = bg2.convert()
     bg2.fill(WHITE)
@@ -285,6 +346,11 @@ def mode3(LIST):
             print("scissor!")
             i = 2
             throw = True
+        elif gesture == 9:       # Double tap
+            mode = 0
+            print("Quit!")
+            return
+
 
         for event in pg.event.get():
             if event.type == KEYDOWN:           # 觸發關閉視窗
@@ -332,7 +398,7 @@ def mode3(LIST):
                 lose += 1
                 state = 3
 
-            time.sleep(2)
+            
         screen.fill(WHITE)
         all_sprites.draw(screen)                             # 全部畫出
         # 正式渲染
@@ -341,11 +407,14 @@ def mode3(LIST):
             msg = title_font.render("It's a tie!", True, (0, 0, 0))
             screen.blit(msg, (WINDOW_SIZE[0]/2.5, WINDOW_SIZE[1]/2.3))
         elif state == 2:
-            msg = title_font.render('You win!', True, (0, 0, 0))
+            msg = title_font.render('You win!', True, GREEN)
             screen.blit(msg, (WINDOW_SIZE[0]/2.5, WINDOW_SIZE[1]/2.3))
         elif state == 3:
-            msg = title_font.render('You Lose QQ', True, (0, 0, 0))
+            msg = title_font.render('You Lose QQ', True, RED)
             screen.blit(msg, (WINDOW_SIZE[0]/2.8, WINDOW_SIZE[1]/2.3))
+        if throw: 
+            throw = False
+            time.sleep(1)
 
         win_counter = score_font.render('Win : '+ str(win), True, (0, 0, 0))
         lose_counter = score_font.render('Lose : '+ str(lose), True, (0, 0, 0))
