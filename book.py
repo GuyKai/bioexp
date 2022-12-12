@@ -1,5 +1,3 @@
-# 開始介面 + 連線
-# 一般 健身環 mode
 import pygame as pg
 import random, socket, time
 from math import *
@@ -7,11 +5,6 @@ from pygame import event
 from pygame.locals import K_ESCAPE, KEYDOWN, MOUSEBUTTONDOWN, QUIT
 from pygame.math import *
 from os import getcwd
-
-
-# Todo
-# 猜拳
-# 撥歌
 
 pg.font.init()
 WINDOW_SIZE = (720, 480)
