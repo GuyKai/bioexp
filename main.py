@@ -253,18 +253,18 @@ def mode2(LIST):
     from PIL import Image
     # from pykeyboard import PyKeyboard
     import keyboard
-    # import sys
-    # import subprocess
+    import sys
+    import subprocess
     global run, screen, WINDOW_SIZE, pivot, Start_loc, all_sprites, mode
     # k = PyKeyboard()
 
-    image = Image.open('002.jpg')
-    image.show()
-    # imageViewerFromCommandLine = {'linux':'xdg-open',
-    #                               'win32':'explorer',
-    #                               'darwin':'open'}[sys.platform]
+    # image = Image.open('002.jpg')
+    # image.show()
+    imageViewerFromCommandLine = {'linux':'xdg-open',
+                                  'win32':'explorer',
+                                  'darwin':'open'}[sys.platform]
     # print(imageViewerFromCommandLine)
-    # pro = subprocess.run([imageViewerFromCommandLine, "002.jpg"])
+    pro = subprocess.Popen([imageViewerFromCommandLine, "002.jpg"])
     # subprocess.run([imageViewerFromCommandLine, 'book1.png'])
     mode = 0
     zoom = 0
@@ -360,6 +360,7 @@ def mode3(LIST):
     count_p = 0
     count_st = 0
     count_sc = 0
+    count_q = 0
     #all_sprites.add()
 
     while run:
@@ -384,9 +385,7 @@ def mode3(LIST):
             # i = 2
             # throw = True
         elif gesture == 9:       # Double tap
-            mode = 0
-            print("Quit!")
-            return
+            count_q += 1  
 
         if count_p > 3:            
             print("paper!")
@@ -400,33 +399,37 @@ def mode3(LIST):
             print("scissor!")
             i = 2
             throw = True
+        if count_q > 3:
+            mode = 0
+            print("Quit!")
+            return
 
-        for event in pg.event.get():
-            if event.type == KEYDOWN:           # 觸發關閉視窗
-                if event.key == K_ESCAPE:
-                    run = False
-            elif event.type == QUIT:
-                run = False
-            elif event.type == pg.VIDEORESIZE:
-                WINDOW_SIZE = event.size
-                screen = pg.display.set_mode(WINDOW_SIZE, pg.RESIZABLE, 32)
-            elif event.type == pg.KEYUP:
-                if event.key == pg.K_LEFT:
-                    print("paper!")
-                    i = 0
-                    throw = True
-                elif event.key == pg.K_DOWN:
-                    print("stone!")
-                    i = 1
-                    throw = True
-                elif event.key == pg.K_RIGHT:
-                    print("scissor!")
-                    i = 2
-                    throw = True
-                # Back
-                elif event.key == pg.K_UP:
-                    mode = 0
-                    return
+        # for event in pg.event.get():
+        #     if event.type == KEYDOWN:           # 觸發關閉視窗
+        #         if event.key == K_ESCAPE:
+        #             run = False
+        #     elif event.type == QUIT:
+        #         run = False
+        #     elif event.type == pg.VIDEORESIZE:
+        #         WINDOW_SIZE = event.size
+        #         screen = pg.display.set_mode(WINDOW_SIZE, pg.RESIZABLE, 32)
+        #     elif event.type == pg.KEYUP:
+        #         if event.key == pg.K_LEFT:
+        #             print("paper!")
+        #             i = 0
+        #             throw = True
+        #         elif event.key == pg.K_DOWN:
+        #             print("stone!")
+        #             i = 1
+        #             throw = True
+        #         elif event.key == pg.K_RIGHT:
+        #             print("scissor!")
+        #             i = 2
+        #             throw = True
+        #         # Back
+        #         elif event.key == pg.K_UP:
+        #             mode = 0
+        #             return
         
         if throw:
             num = random.randint(0, 2)
@@ -469,7 +472,8 @@ def mode3(LIST):
             count_p = 0
             count_sc = 0
             count_st = 0
-            time.sleep(1)
+            count_q = 0
+            time.sleep(0.5)
 
         win_counter = score_font.render('Win : '+ str(win), True, (0, 0, 0))
         lose_counter = score_font.render('Lose : '+ str(lose), True, (0, 0, 0))
