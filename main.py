@@ -128,17 +128,17 @@ def start(LIST):
             mode = btn_preview
             return
 
-        if count_d > 5:
+        if count_d > 100:
             btn_preview = 3 if btn_preview == 3 else btn_preview + 1
             count_d = 0
             count_u = 0
             counter = 0
-        if count_u > 5:
+        if count_u > 100:
             btn_preview = 1 if btn_preview == 1 else btn_preview - 1
             count_d = 0
             count_u = 0
             counter = 0
-        if counter > 100:
+        if counter > 500:
             count_d = 0
             count_u = 0
             counter = 0
