@@ -269,10 +269,12 @@ def mode2(LIST):
     mode = 0
     zoom = 0
     count = 0
+    wait = 10
     while run:
         count += 1
+        wait += 1
         # Reset
-        if count > 1000:
+        if count > 50:
             count = 0
             zoom = 0
             
@@ -281,7 +283,8 @@ def mode2(LIST):
         gesture = out[0][0]
 
         if zoom == 1:
-            if gesture == 3:          # stone + paper   
+            if gesture == 3:          # stone + paper 
+                wait = 0  
                 print("Zoom in")
                 keyboard.press_and_release("ctrl+add")
                 keyboard.press_and_release("ctrl+add")
@@ -290,7 +293,8 @@ def mode2(LIST):
                 # k.press_keys([k.control_key, k.keypad_keys["Add"]]) 
                 zoom = 0
         elif zoom == 2:               # paper + stone
-            if gesture == 2:            
+            if gesture == 2:    
+                wait = 0        
                 print("Zoom out")
                 keyboard.press_and_release("ctrl+subtract")
                 keyboard.press_and_release("ctrl+subtract")
@@ -298,7 +302,7 @@ def mode2(LIST):
                 # k.press_keys([k.control_key, k.keypad_keys["Subtract"]])
                 # k.press_keys([k.control_key, k.keypad_keys["Subtract"]])
                 zoom = 0
-        else:
+        elif wait > 10:
             if gesture == 2:          # stone
                 zoom = 1
             if gesture == 3:          # paper
