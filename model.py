@@ -50,7 +50,7 @@ def main(LK, RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
     s = 0
     temp = []
     update = False
-    window = 200
+    window = 250
     
     
     mode = 0 #0 for emg + fsr ,1 for emg 
@@ -115,7 +115,7 @@ def main(LK, RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
             
             LK.release()
             
-            #print(gestures[gesture[0]])
+            print(gestures[gesture[0]])
             
             update = False
             s = 0
