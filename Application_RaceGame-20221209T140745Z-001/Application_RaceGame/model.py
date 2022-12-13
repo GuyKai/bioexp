@@ -43,7 +43,7 @@ def emg_filter(data):
     return pdata
 
 
-def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
+def main(LK, RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
 
     ser = serial.Serial(COM_PORT, BAUD_RATES)
     
@@ -60,7 +60,8 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
     else :
         size = 6
         
-    data = np.zeros((1000,size))
+    data = np.zeros((3,500,size))
+    step = np.zeros((500,size))
     
     model = keras.models.load_model('my_model.h5')
     
@@ -82,10 +83,18 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
                         
         if update == True :    
             temp = np.array(temp)
-            data = np.delete(data, slice(window), axis=0)
-            data = np.append(data, temp[:,6-size:6], axis=0)
-                        
-            pdata = emg_filter(data) 
+            step = np.delete(step, slice(window), axis=0)
+            step = np.append(step, temp[:,6-size:6], axis=0)
+            
+            pstep = emg_filter(step) #(500,6)
+            
+            pstep = np.reshape(pstep, (1,500,size)) 
+            
+            
+            data = np.delete(data, 0 , axis=0)  
+
+            data = np.append(data, pstep, axis=0) #(3,500,6)
+             
             
 # =============================================================================
 #             fig, (plt1, plt2) = plt.subplots(2, 1, figsize=(12,7))
@@ -94,13 +103,20 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
 #             plt.show()
 # =============================================================================
             
-            pdata = np.reshape(pdata, (1,1000,size)) 
+            pdata = np.reshape(data, (1,3,500,size)) 
 
             prediction = model(pdata).numpy()
             gesture = np.argmax(prediction,axis=1)
             
+            LK.acquire()
+            
             LIST[:-1] = LIST[1:]
             LIST[-1] = gesture[0]
+            
+            LK.release()
+
+            print(gesture[0])
+            
             #print(gestures[gesture[0]])
             
             update = False
@@ -111,8 +127,6 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
 #             print(time.time()-second)
 #             second = time.time()
 # =============================================================================
-            
-            
             
         
     ser.close()
@@ -136,18 +150,45 @@ if __name__ == "__main__":
     BAUD_RATES = 500000    # 設定傳輸速率
     LIST = [0] * 6
     RF = threading.Event()
+    LK = threading.Lock()
     
-    model_thread = threading.Thread(target = main, args=(RF, COM_PORT, BAUD_RATES, LIST,))
+    model_thread = threading.Thread(target = main, args=(LK, RF, COM_PORT, BAUD_RATES, LIST,))
     
     RF.set()
     model_thread.setDaemon(True)
     model_thread.start()
+
+    time.sleep(5)
+    print("Start")
+    
     try:
         while True :
-            show = input("show?")
-            time.sleep(2)
+            
             out = Counter(LIST).most_common(1)
-            print("show: ",gestures[out[0][0]])
+            
+            
+            
+            if out[0][0] == 9:
+                print("Listening...")
+                
+                time.sleep(2)
+                
+                out = Counter(LIST).most_common(1)
+                
+                print("show: ",gestures[out[0][0]])
+                time.sleep(1)
+        
+            time.sleep(0.01)
+                
+                
+# =============================================================================
+#             show = input("show?")
+#             time.sleep(2)
+#             out = Counter(LIST).most_common(1)
+#             print("show: ",gestures[out[0][0]])
+# =============================================================================
+            
+
             
     except (KeyboardInterrupt, SystemExit):
         RF.clear()
@@ -160,4 +201,5 @@ if __name__ == "__main__":
         print ('END')
 
         
+
 

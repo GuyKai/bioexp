@@ -250,15 +250,13 @@ def mode2(LIST):
     while run:
         count += 1
         # Reset
-        if count > 100:
+        if count > 1000:
             count = 0
             zoom = 0
             
         time.sleep(0.001)
-
         out = Counter(LIST).most_common(1)
         gesture = out[0][0]
-        print(gesture)
 
         if zoom == 1:
             if gesture == 3:          # stone + paper   
