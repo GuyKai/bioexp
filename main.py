@@ -78,7 +78,12 @@ def start(LIST):
 
     screen.blit(bg1, (0,0))
     pg.display.update()
+    count_d = 0
+    count_u = 0
+    counter = 0
+    # state = 0
     while run:
+        counter += 1
         time.sleep(0.001)
         out = Counter(LIST).most_common(1)
         # print("show: ",gestures[out[0][0]])
@@ -112,14 +117,31 @@ def start(LIST):
             pg.draw.rect(screen, preview_color, BTN_mode2, 10)
         elif btn_preview == 3:
             pg.draw.rect(screen, preview_color, BTN_mode3, 10)
-
+        
         if gesture == 5:            # Down
-            btn_preview = 3 if btn_preview == 3 else btn_preview + 1
+            count_d += 1
+            # btn_preview = 3 if btn_preview == 3 else btn_preview + 1
         elif gesture == 4:          # Up
-            btn_preview = 1 if btn_preview == 1 else btn_preview - 1
+            count_u += 1
+            # btn_preview = 1 if btn_preview == 1 else btn_preview - 1
         elif gesture == 8:          # Thumbsup
             mode = btn_preview
             return
+
+        if count_d > 5:
+            btn_preview = 3 if btn_preview == 3 else btn_preview + 1
+            count_d = 0
+            count_u = 0
+            counter = 0
+        if count_u > 5:
+            btn_preview = 1 if btn_preview == 1 else btn_preview - 1
+            count_d = 0
+            count_u = 0
+            counter = 0
+        if counter > 100:
+            count_d = 0
+            count_u = 0
+            counter = 0
 
         pg.display.update()
         for event in pg.event.get():
@@ -231,18 +253,18 @@ def mode2(LIST):
     from PIL import Image
     # from pykeyboard import PyKeyboard
     import keyboard
-    import sys
-    import subprocess
+    # import sys
+    # import subprocess
     global run, screen, WINDOW_SIZE, pivot, Start_loc, all_sprites, mode
     # k = PyKeyboard()
 
-    # image = Image.open('002.jpg')
-    # image.show()
-    imageViewerFromCommandLine = {'linux':'xdg-open',
-                                  'win32':'explorer',
-                                  'darwin':'open'}[sys.platform]
+    image = Image.open('002.jpg')
+    image.show()
+    # imageViewerFromCommandLine = {'linux':'xdg-open',
+    #                               'win32':'explorer',
+    #                               'darwin':'open'}[sys.platform]
     # print(imageViewerFromCommandLine)
-    pro = subprocess.Popen([imageViewerFromCommandLine, "002.jpg"])
+    # pro = subprocess.run([imageViewerFromCommandLine, "002.jpg"])
     # subprocess.run([imageViewerFromCommandLine, 'book1.png'])
     mode = 0
     zoom = 0
@@ -288,32 +310,31 @@ def mode2(LIST):
             mode = 0
             print("Quit!")
             return
-        if keyboard.read_key() == "p":
-            print("You pressed p")
-            keyboard.press_and_release("ctrl+add")
-            keyboard.press_and_release("ctrl+add")
-            keyboard.press_and_release("ctrl+add")
-            # k.press_keys([k.control_key, k.keypad_keys["Add"]])
-            # k.press_keys([k.control_key, k.keypad_keys["Add"]])     
-            # image.close()
-            # break
-        if keyboard.read_key() == "o":
-            print("You pressed o")
-            keyboard.press_and_release("ctrl+subtract")
-            keyboard.press_and_release("ctrl+subtract")
-            keyboard.press_and_release("ctrl+subtract")
-            # k.press_keys([k.control_key, k.keypad_keys["Subtract"]])
-            # k.press_keys([k.control_key, k.keypad_keys["Subtract"]])  
-        if keyboard.read_key() == "q":
-            print("You pressed q")
-            pro.kill()
-            mode = 0
-            break
-            # for proc in psutil.process_iter():
-            #     print(proc.name())
-            #     if proc.name() == "explorer.exe":
-            #         proc.kill()
-
+        # if keyboard.read_key() == "p":
+        #     print("You pressed p")
+        #     keyboard.press_and_release("ctrl+add")
+        #     keyboard.press_and_release("ctrl+add")
+        #     keyboard.press_and_release("ctrl+add")
+        #     # k.press_keys([k.control_key, k.keypad_keys["Add"]])
+        #     # k.press_keys([k.control_key, k.keypad_keys["Add"]])     
+        #     # image.close()
+        #     # break
+        # if keyboard.read_key() == "o":
+        #     print("You pressed o")
+        #     keyboard.press_and_release("ctrl+subtract")
+        #     keyboard.press_and_release("ctrl+subtract")
+        #     keyboard.press_and_release("ctrl+subtract")
+        #     # k.press_keys([k.control_key, k.keypad_keys["Subtract"]])
+        #     # k.press_keys([k.control_key, k.keypad_keys["Subtract"]])  
+        # if keyboard.read_key() == "q":
+        #     print("You pressed q")
+        #     # pro.kill()
+        #     mode = 0
+        #     break
+        #     # for proc in psutil.process_iter():
+        #     #     print(proc.name())
+        #     #     if proc.name() == "explorer.exe":
+        #     #         proc.kill()
     mode = 0
     # return
 
@@ -338,6 +359,9 @@ def mode3(LIST):
     i = 1
     win = 0
     lose = 0
+    count_p = 0
+    count_st = 0
+    count_sc = 0
     #all_sprites.add()
 
     while run:
@@ -346,23 +370,38 @@ def mode3(LIST):
         gesture = out[0][0]
         print(gesture)
 
-        if gesture == 3:            
-            print("paper!")
-            i = 0
-            throw = True
-        elif gesture == 2:          
-            print("stone!")
-            i = 1
-            throw = True
+        if gesture == 3:  
+            count_p += 1          
+            # print("paper!")
+            # i = 0
+            # throw = True
+        elif gesture == 2:  
+            count_st += 1        
+            # print("stone!")
+            # i = 1
+            # throw = True
         elif gesture == 1:
-            print("scissor!")
-            i = 2
-            throw = True
+            count_sc += 1
+            # print("scissor!")
+            # i = 2
+            # throw = True
         elif gesture == 9:       # Double tap
             mode = 0
             print("Quit!")
             return
 
+        if count_p > 3:            
+            print("paper!")
+            i = 0
+            throw = True
+        elif count_st > 3:          
+            print("stone!")
+            i = 1
+            throw = True
+        elif count_sc > 3:
+            print("scissor!")
+            i = 2
+            throw = True
 
         for event in pg.event.get():
             if event.type == KEYDOWN:           # 觸發關閉視窗
@@ -393,7 +432,7 @@ def mode3(LIST):
         
         if throw:
             num = random.randint(0, 2)
-            print(num)
+            # print(num)
             opponent.change(num)
             player.change(i)
             # throw = False
@@ -424,8 +463,14 @@ def mode3(LIST):
         elif state == 3:
             msg = title_font.render('You Lose QQ', True, RED)
             screen.blit(msg, (WINDOW_SIZE[0]/2.8, WINDOW_SIZE[1]/2.3))
+        else:
+            screen.blit(msg, (WINDOW_SIZE[0]/2.5, WINDOW_SIZE[1]/2.3))
+
         if throw: 
             throw = False
+            count_p = 0
+            count_sc = 0
+            count_st = 0
             time.sleep(1)
 
         win_counter = score_font.render('Win : '+ str(win), True, (0, 0, 0))
