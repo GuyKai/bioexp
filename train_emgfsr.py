@@ -26,7 +26,7 @@ for gesture in gestures:
 '''
 
 
-mode = 0 #0 for emg + fsr ,1 for emg 
+mode = 1 #0 for emg + fsr ,1 for emg 
 
 if mode == 1:
     size = 4
@@ -140,6 +140,8 @@ CNN.add(layers.Dense(10,activation='softmax'))
 #做連結圖
 keras.utils.plot_model(CNN, show_shapes=True)
 
+CNN.summary()
+
 # model.complie
 CNN.compile(optimizer='Adam',
       loss='categorical_crossentropy',
@@ -150,7 +152,7 @@ CNN.compile(optimizer='Adam',
 train_history=CNN.fit(x=X_train, 
                       y=Y_train_onehot,
                       validation_split=0.1, 
-                      epochs=100, 
+                      epochs=60, 
                       batch_size=10, 
                       verbose=2)
 

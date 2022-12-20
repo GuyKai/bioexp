@@ -26,7 +26,7 @@ for gesture in gestures:
 '''
 
 
-mode = 0 #0 for emg + fsr ,1 for emg 
+mode = 1 #0 for emg + fsr ,1 for emg 
 
 if mode == 1:
     size = 4
@@ -34,7 +34,7 @@ else :
     size = 6
 
 Y_data = np.array([]) 
-X_data = np.zeros((0,3,500,size))#先建立X_data的空架構，預設圖片大小1,000x6
+X_data = np.zeros((0,3,500,size))#先建立X_data的空架構，預設圖片大小500x6
 
 #%%
 #===========================EMG濾波函數========================

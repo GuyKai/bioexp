@@ -53,7 +53,7 @@ def main(LK, RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
     window = 250
     
     
-    mode = 0 #0 for emg + fsr ,1 for emg 
+    mode = 1 #0 for emg + fsr ,1 for emg 
 
     if mode == 1:
         size = 4
@@ -61,7 +61,7 @@ def main(LK, RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
         size = 6
         
     data = np.zeros((3,500,size))
-    step = np.zeros((500,size))
+    step = np.zeros((500,6))
     
     model = keras.models.load_model('my_model.h5')
     
@@ -84,16 +84,18 @@ def main(LK, RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
         if update == True :    
             temp = np.array(temp)
             step = np.delete(step, slice(window), axis=0)
-            step = np.append(step, temp[:,6-size:6], axis=0)
+            step = np.append(step, temp, axis=0)
+            
+            
             
             pstep = emg_filter(step) #(500,6)
             
-            pstep = np.reshape(pstep, (1,500,size)) 
+            tstep = np.reshape(pstep[:,6-size:6], (1,500,size)) 
             
             
             data = np.delete(data, 0 , axis=0)  
 
-            data = np.append(data, pstep, axis=0) #(3,500,6)
+            data = np.append(data, tstep, axis=0) #(3,500,6)
              
             
 # =============================================================================
@@ -103,7 +105,7 @@ def main(LK, RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
 #             plt.show()
 # =============================================================================
             
-            pdata = np.reshape(data, (1,3,500,size)) 
+            pdata = np.reshape(data, (1,3,500,size,1)) 
 
             prediction = model(pdata).numpy()
             gesture = np.argmax(prediction,axis=1)

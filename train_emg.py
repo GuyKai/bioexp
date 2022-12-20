@@ -26,7 +26,7 @@ for gesture in gestures:
 '''
 
 
-mode = 1 #0 for emg + fsr ,1 for emg 
+mode = 0 #0 for emg + fsr ,1 for emg 
 
 if mode == 1:
     size = 4
@@ -130,11 +130,11 @@ CNN.add(layers.MaxPooling2D((2,1)))
 #壓平 4x4x32 = 512
 CNN.add(layers.Flatten())
 #隱藏層 Dense 神經元數量 512>100 因為最後是9類
-CNN.add(layers.Dense(100,activation='relu'))
+CNN.add(layers.Dense(50,activation='relu'))
 #隨機捨棄神經元，避免overfitting
 CNN.add(Dropout(0.7))
 #輸出層 分類用softmax
-CNN.add(layers.Dense(12,activation='softmax'))
+CNN.add(layers.Dense(10,activation='softmax'))
 
 #做連結圖
 keras.utils.plot_model(CNN, show_shapes=True)

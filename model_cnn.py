@@ -50,7 +50,7 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
     s = 0
     temp = []
     update = False
-    window = 200
+    window = 250
     
     
     mode = 0 #0 for emg + fsr ,1 for emg 
@@ -83,9 +83,9 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
         if update == True :    
             temp = np.array(temp)
             data = np.delete(data, slice(window), axis=0)
-            data = np.append(data, temp[:,6-size:6], axis=0)
+            data = np.append(data, emg_filter(temp[:,6-size:6]), axis=0)
                         
-            pdata = emg_filter(data) 
+            pdata = data
             
 # =============================================================================
 #             fig, (plt1, plt2) = plt.subplots(2, 1, figsize=(12,7))
@@ -94,7 +94,7 @@ def main(RF, COM_PORT = 'COM7' , BAUD_RATES = 500000, LIST = [0] * 10):
 #             plt.show()
 # =============================================================================
             
-            pdata = np.reshape(pdata, (1,1000,size)) 
+            pdata = np.reshape(pdata, (1,1000,size,1)) 
 
             prediction = model(pdata).numpy()
             gesture = np.argmax(prediction,axis=1)
